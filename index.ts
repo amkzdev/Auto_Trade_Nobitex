@@ -1,5 +1,5 @@
-import { NobitexEndPoint } from "./api/nobitex"
-import { nobitexApi } from "./config/api"
+import { NobitexEndPoint} from "./api/nobitex"
+import { nobitexApi} from "./config/api"
 
 setInterval(async () => {
 
