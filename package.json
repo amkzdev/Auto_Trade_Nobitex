@@ -2,16 +2,20 @@
   "name": "tradetrackadviser",
   "version": "1.0.0",
   "description": "It's adviser that tracks markets.",
-  "main": "index.js",
+  "main": "dist/app.js",
   "scripts": {
-    "start": "node --env-file=.env index.ts",
+    "start": "tsc && node --env-file=.env dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "AMKZ",
   "license": "ISC",
-  "type": "module",
   "dependencies": {
     "axios": "^1.6.7",
     "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.0.1",
+    "@typescript-eslint/parser": "^7.0.1",
+    "eslint": "^8.56.0"
   }
 }
