@@ -1,0 +1,17 @@
+{
+  "name": "tradetrackadviser",
+  "version": "1.0.0",
+  "description": "It's adviser that tracks markets.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node --env-file=.env index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "AMKZ",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "axios": "^1.6.7",
+    "typescript": "^5.3.3"
+  }
+}
