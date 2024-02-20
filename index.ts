@@ -38,7 +38,7 @@ setInterval(async () => {
                 if (item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 4] > 1.01
                     &&
                     //Calculate 30 minute with 2% Up
-                    item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 6] > 1.02
+                    item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 7] > 1.02
                     &&
                     //Calculate 1 Hour with 4% Up
                     item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 13] > 1.04
