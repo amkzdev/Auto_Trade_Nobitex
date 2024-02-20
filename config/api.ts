@@ -7,3 +7,7 @@ export const nobitexApi = axios.create({
         UserAgent:`rBot/amkztracker`
     }
 })
+
+export const kavehAPI = axios.create({
+    baseURL:`${process.env.KAVEH_API}/${process.env.KAVEH_NEGAR_API_KEY}`,
+})
