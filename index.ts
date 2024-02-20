@@ -1,8 +1,10 @@
-import { AmdDependency } from "typescript"
 import { NobitexEndPoint } from "./api/nobitex"
-import { nobitexApi } from "./config/api"
-import { nobitexSymbolsRial, nobitexSymbolsUSDT } from "./variables/nobitex"
+import { kavehAPI, nobitexApi } from "./config/api"
+import { nobitexSymbolsUSDT } from "./variables/nobitex"
 import { OHLCResponseType } from "./types/nobitex"
+import { KavehEndPoint } from "./api/kaveh"
+
+
 
 setInterval(async () => {
 
@@ -32,20 +34,33 @@ setInterval(async () => {
 
         try {
             data.forEach(item => {
-                //Calculate 15 minute with 2% Up
-                console.log('----------------------------------------------------------------')
-                console.log(item.symbol)
-                console.log('Last 5 Minutes is ' , item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 4])
-                console.log('----------------------------------------------------------------')
+                //Calculate 15 minute with 1% Up
                 if (item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 4] > 1.01
                     &&
+                    //Calculate 30 minute with 2% Up
                     item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 6] > 1.02
                     &&
+                    //Calculate 1 Hour with 4% Up
                     item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 13] > 1.04
                 ) {
 
-                    console.log('Symbol', item.symbol, 'Is Awsome')
-                    /// The Symbol Is Offff!!!
+                    try {
+
+                        console.log(item.symbol, (new Date()).toLocaleString())
+                        kavehAPI.get(KavehEndPoint.VERIFY, {
+                            params: {
+                                // token: `${item.symbol}-${(new Date()).toLocaleString()}]`,
+                                token: item.symbol,
+                                receptor: '09199660906',
+                                template: 'verifyCode'
+                            }
+                        })
+                    } catch (error) {
+                        console.log('--------------------------------')
+                        console.log('Error in Sending Message')
+                        console.log(item.symbol, (new Date()).toLocaleString())
+                        console.log('--------------------------------')
+                    }
                 }
             })
 
