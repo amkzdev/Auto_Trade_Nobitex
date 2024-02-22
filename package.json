@@ -10,6 +10,7 @@
   "author": "AMKZ",
   "license": "ISC",
   "dependencies": {
+    "@emailjs/nodejs": "^2.2.0",
     "axios": "^1.6.7",
     "typescript": "^5.3.3"
   },

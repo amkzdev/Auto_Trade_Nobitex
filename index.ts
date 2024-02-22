@@ -3,6 +3,14 @@ import { kavehAPI, nobitexApi } from "./config/api"
 import { nobitexSymbolsUSDT } from "./variables/nobitex"
 import { OHLCResponseType } from "./types/nobitex"
 import { KavehEndPoint } from "./api/kaveh"
+import emailjs from '@emailjs/nodejs';
+
+// const templateParams = {
+//     message: 'بیت کوین در 5  دقیقه اخیر رشد داشته',
+//     from_name: 'BTCUSDT',
+//     to_name:'خودم'
+//   };
+
 
 
 
@@ -21,7 +29,7 @@ setInterval(async () => {
                     symbol: symbol,
                     resolution: '5',
                     to: Math.floor(Date.now() / 1000),
-                    from: Math.floor((Date.now() - (1000 * 60 * 60)) / 1000)
+                    from: Math.floor((Date.now() - (1000 * 60 * 180)) / 1000)
                 }
 
             })).data,
@@ -42,20 +50,43 @@ setInterval(async () => {
                     // item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 7] > 1.02
                     // &&
                     //Calculate 1 Hour with 4% Up
-                    item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 13] > 1.03
+                    item.data.s == 'ok' &&
+                    item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 5] > 1.03
                 ) {
 
                     try {
 
                         console.log(item.symbol, (new Date()).toLocaleString())
-                        kavehAPI.get(KavehEndPoint.VERIFY, {
-                            params: {
-                                // token: `${item.symbol}-${(new Date()).toLocaleString()}]`,
-                                token: item.symbol,
-                                receptor: '09199660906',
-                                template: 'verifyCode'
-                            }
-                        })
+
+                        emailjs
+                            .send('tracker_2024', 'template_ml2qval', {
+                                message:`${item.symbol} در 15 دقیقه اخیر ${((item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 5])-1).toFixed(2) }% رشد داشته است.
+                                قیمت : ${item.data.c[item.data.c.length - 1]}
+                                تاریخ  : ${(new Date()).toLocaleDateString() }
+                                ساعت  : ${(new Date()).toLocaleTimeString() }`,
+                                to_name:'خودم',
+                                from_name:item.symbol
+                            }, {
+                                publicKey: 'UQDXzFdSyxsFtOgyH',
+                                privateKey: '_wZA6I-x2ksWVSWDJmpYP', // optional, highly recommended for security reasons
+                            })
+                            .then(
+                                (response) => {
+                                    console.log('SUCCESS!', response.status, response.text);
+                                },
+                                (err) => {
+                                    kavehAPI.get(KavehEndPoint.VERIFY, {
+                                        params: {
+                                            // token: `${item.symbol}-${(new Date()).toLocaleString()}]`,
+                                            token: item.symbol,
+                                            receptor: '09199660906',
+                                            template: 'verifyCode'
+                                        }
+                                    })
+                                },
+                            );
+
+
                     } catch (error) {
                         console.log('--------------------------------')
                         console.log('Error in Sending Message')
