@@ -51,7 +51,7 @@ setInterval(async () => {
                     // &&
                     //Calculate 1 Hour with 4% Up
                     item.data.s == 'ok' &&
-                    item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 5] > 1.03
+                    (item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 5]) > 1.025
                 ) {
 
                     try {
@@ -60,12 +60,13 @@ setInterval(async () => {
 
                         emailjs
                             .send('tracker_2024', 'template_ml2qval', {
-                                message:`${item.symbol} در 15 دقیقه اخیر ${((item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 5])-1).toFixed(2) }% رشد داشته است.
-                                قیمت : ${item.data.c[item.data.c.length - 1]}
-                                تاریخ  : ${(new Date()).toLocaleDateString() }
-                                ساعت  : ${(new Date()).toLocaleTimeString() }`,
-                                to_name:'خودم',
-                                from_name:item.symbol
+                                message: `${item.symbol} در 15 دقیقه اخیر ${(((item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 5]) - 1) * 100).toFixed(2)}% رشد داشته است.
+                                قیمت پایانی فعلی : ${item.data.c[item.data.c.length - 1]}
+                                قیمت پایانی یک ربع پیش : ${item.data.c[item.data.c.length - 5]}
+                                تاریخ  : ${(new Date()).toLocaleDateString()}
+                                ساعت  : ${(new Date()).toLocaleTimeString()}`,
+                                to_name: 'خودم',
+                                from_name: item.symbol
                             }, {
                                 publicKey: 'UQDXzFdSyxsFtOgyH',
                                 privateKey: '_wZA6I-x2ksWVSWDJmpYP', // optional, highly recommended for security reasons
