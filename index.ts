@@ -81,7 +81,7 @@ setInterval(async () => {
                             #معامله
                             قیمت پایانی فعلی : ${item.data.c[item.data.c.length - 1]}
                             قیمت آغازین  : ${item.data.o[item.data.c.length - 5]}
-                             تاریخ کندل  : ${(new Date( item.data.t[item.data.c.length - 5] *1000)).toLocaleDateString()}
+                             تاریخ کندل  : ${(new Date( item.data.t[item.data.c.length - 5] *1000)).toLocaleTimeString()}
                              تاریخ  : ${(new Date()).toLocaleDateString()}
                              ساعت  : ${(new Date()).toLocaleTimeString()}
                             `)
