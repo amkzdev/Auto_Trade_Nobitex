@@ -1,0 +1,1 @@
+export const concatWords = (items:string[]) => ''.concat(...items)

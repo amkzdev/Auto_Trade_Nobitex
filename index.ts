@@ -5,6 +5,7 @@ import { OHLCResponseType } from "./types/nobitex"
 import { KavehEndPoint } from "./api/kaveh"
 import emailjs from '@emailjs/nodejs';
 import { BaleEndPoint } from "./api/bale"
+import { concatWords } from "./utils"
 
 // const templateParams = {
 //     message: 'بیت کوین در 5  دقیقه اخیر رشد داشته',
@@ -78,18 +79,38 @@ setInterval(async () => {
                                 ((item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 2]) > 1.02)
                             )
                             && (item.data.v[item.data.c.length - 1] / averageVolume) >= 3) {
-                            BaleEndPoint.SEND_MESSAGE(`${item.symbol}
-                            پامپ شده است و شرایط انجام معامله را دارد.
-                            حجم معامله بیش از سه برابر میانگین 30 دقیقه اخیر
-                            قیمت پایانی و آغازین بیش از 1.5 درصد اختلاف دارند
-                            ${(((item.data.c[item.data.c.length - 1] / item.data.o[item.data.c.length - 5]) - 1) * 100).toFixed(2)}%
-                            #معامله
-                            قیمت پایانی فعلی : ${item.data.c[item.data.c.length - 1]}
-                            قیمت آغازین  : ${item.data.o[item.data.c.length - 5]}
-                             تاریخ کندل  : ${(new Date(item.data.t[item.data.c.length - 5] * 1000)).toLocaleTimeString()}
-                             تاریخ  : ${(new Date()).toLocaleDateString()}
-                             ساعت  : ${(new Date()).toLocaleTimeString()}
-                            `)
+
+                            BaleEndPoint.SEND_MESSAGE(
+                                concatWords([
+                                    item.symbol,
+                                    ` پامپ شده است و شرایط انجام معامله را دارد.
+                                        حجم معامله بیش از سه برابر میانگین 30 دقیقه اخیر`,
+                                    ((item.data.c[item.data.c.length - 1] / item.data.o[item.data.c.length - 1]) > 1.01) ?
+                                        ` قیمت پایانی و آغازین بیش از 1 درصد اختلاف دارند
+                                        ${(((item.data.c[item.data.c.length - 1] / item.data.o[item.data.c.length - 5]) - 1) * 100).toFixed(2)}%`
+                                        :
+                                        ` قیمت پایانی کندل فعلی و کندل پیشین پیش از 2 درصد اختلاف دارند.
+                                        ${(((item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 2]) - 1) * 100).toFixed(2)}%
+                                        `,
+                                        ` #معامله
+                                        قیمت پایانی فعلی : ${item.data.c[item.data.c.length - 1]}
+                                        قیمت آغازین  : ${item.data.o[item.data.c.length - 5]}
+                                         تاریخ کندل  : ${(new Date(item.data.t[item.data.c.length - 5] * 1000)).toLocaleTimeString()}
+                                         تاریخ  : ${(new Date()).toLocaleDateString()}
+                                         ساعت  : ${(new Date()).toLocaleTimeString()}
+                                        `
+                                ])
+                            )
+                            // BaleEndPoint.SEND_MESSAGE(`${item.symbol}
+
+
+                            // #معامله
+                            // قیمت پایانی فعلی : ${item.data.c[item.data.c.length - 1]}
+                            // قیمت آغازین  : ${item.data.o[item.data.c.length - 5]}
+                            //  تاریخ کندل  : ${(new Date(item.data.t[item.data.c.length - 5] * 1000)).toLocaleTimeString()}
+                            //  تاریخ  : ${(new Date()).toLocaleDateString()}
+                            //  ساعت  : ${(new Date()).toLocaleTimeString()}
+                            // `)
 
                         }
 
