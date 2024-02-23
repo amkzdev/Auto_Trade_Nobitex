@@ -112,7 +112,7 @@ setInterval(async () => {
                                             //Send Buy Order
                                             const { data } = await nobitexApi.post<SendOrderResponseType, AxiosResponse<SendOrderResponseType>, SendNobitexSpotOrderType>(NobitexEndPoint.SEND_ORDER,
                                                 {
-                                                    amount: (5.5),
+                                                    amount: Number(((5.2)/item.data.c[item.data.c.length - 1]).toFixed(4)),
                                                     clientOrderId: `BUY - ${item.symbol} - ${(new Date()).toLocaleString()}`,
                                                     dstCurrency: 'usdt',
                                                     srcCurrency: item.symbol.toLowerCase(),
@@ -185,6 +185,8 @@ setInterval(async () => {
                                                 خطا در ثبت سفارش خرید
                                                 
                                                 ${(new Date()).toLocaleString()}
+
+                                                ${error?.response?.data?.toString()}
 
                                                 ${error?.toString()}
                                                 `)
