@@ -11,3 +11,8 @@ export const nobitexApi = axios.create({
 export const kavehAPI = axios.create({
     baseURL:`${process.env.KAVEH_API}/${process.env.KAVEH_NEGAR_API_KEY}`,
 })
+
+
+export const  baleAPI = axios.create({
+    baseURL:`https://tapi.bale.ai/bot${process.env.BALE_BOT_TOKEN}`
+})
