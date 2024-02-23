@@ -14,4 +14,6 @@ export interface OHLCResponseType {
     o:Array<number>,
     h:Array<number>,
     l:Array<number>,    
+    v:Array<number>,    
+    
 }
