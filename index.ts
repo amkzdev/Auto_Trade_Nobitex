@@ -58,13 +58,38 @@ setInterval(async () => {
                         console.log(item.symbol, (new Date()).toLocaleString())
 
                         baleAPI.post(BaleEndPoint.SEND_MESSAGE, {
-                            chat_id: '@amkztracker',
-                            text: `${item.symbol} در 15 دقیقه اخیر ${(((item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 5]) - 1) * 100).toFixed(2)}% رشد داشته است.
+                            chat_id: '4579795580',
+                            text: `${item.symbol} 
+                            در 15 دقیقه اخیر ${(((item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 5]) - 1) * 100).toFixed(2)}% رشد داشته است.
                                     قیمت پایانی فعلی : ${item.data.c[item.data.c.length - 1]}
                                     قیمت پایانی یک ربع پیش : ${item.data.c[item.data.c.length - 5]}
                                      تاریخ  : ${(new Date()).toLocaleDateString()}
-                                     ساعت  : ${(new Date()).toLocaleTimeString()}`
+                                     ساعت  : ${(new Date()).toLocaleTimeString()}
+                                     #تحلیل
+                                     `
                         })
+
+
+
+                        const averageVolume = item.data.v.slice(-4).reduce((pv, cv) => pv += cv, 0) / 4
+
+                        if ((item.data.c[item.data.c.length - 1] / item.data.o[item.data.c.length - 1]) > 1.015 && (item.data.v[item.data.c.length - 1] /averageVolume) >= 3 ) {
+                            baleAPI.post(BaleEndPoint.SEND_MESSAGE, {
+                                chat_id: '4579795580',
+                                text: `${item.symbol}
+                                پامپ شده است و شرایط انجام معامله را دارد.
+                                حجم معامله بیش از سه برابر میانگین 20 دقیقه اخیر
+                                قیمت پایانی و آغازین بیش از 1.5 درصد اختلاف دارند
+                                ${(((item.data.c[item.data.c.length - 1] / item.data.o[item.data.c.length - 5]) - 1) * 100).toFixed(2)}%
+                                #معامله
+                                قیمت پایانی فعلی : ${item.data.c[item.data.c.length - 1]}
+                                قیمت آغازین  : ${item.data.o[item.data.c.length - 5]}
+                                 تاریخ کندل  : ${(new Date( item.data.t[item.data.c.length - 5] *1000)).toLocaleDateString()}
+                                 تاریخ  : ${(new Date()).toLocaleDateString()}
+                                 ساعت  : ${(new Date()).toLocaleTimeString()}
+                                `
+                            })
+                        }
 
                         // emailjs
                         //     .send('tracker_2024', 'template_ml2qval', {
