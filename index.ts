@@ -1,17 +1,16 @@
 import { NobitexEndPoint } from "./api/nobitex"
-import { kavehAPI, nobitexApi } from "./config/api"
+import { baleAPI, kavehAPI, nobitexApi } from "./config/api"
 import { nobitexSymbolsUSDT } from "./variables/nobitex"
 import { OHLCResponseType } from "./types/nobitex"
 import { KavehEndPoint } from "./api/kaveh"
 import emailjs from '@emailjs/nodejs';
+import { BaleEndPoint } from "./api/bale"
 
 // const templateParams = {
 //     message: 'بیت کوین در 5  دقیقه اخیر رشد داشته',
 //     from_name: 'BTCUSDT',
 //     to_name:'خودم'
 //   };
-
-
 
 
 setInterval(async () => {
@@ -58,34 +57,43 @@ setInterval(async () => {
 
                         console.log(item.symbol, (new Date()).toLocaleString())
 
-                        emailjs
-                            .send('tracker_2024', 'template_ml2qval', {
-                                message: `${item.symbol} در 15 دقیقه اخیر ${(((item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 5]) - 1) * 100).toFixed(2)}% رشد داشته است.
-                                قیمت پایانی فعلی : ${item.data.c[item.data.c.length - 1]}
-                                قیمت پایانی یک ربع پیش : ${item.data.c[item.data.c.length - 5]}
-                                تاریخ  : ${(new Date()).toLocaleDateString()}
-                                ساعت  : ${(new Date()).toLocaleTimeString()}`,
-                                to_name: 'خودم',
-                                from_name: item.symbol
-                            }, {
-                                publicKey: 'UQDXzFdSyxsFtOgyH',
-                                privateKey: '_wZA6I-x2ksWVSWDJmpYP', // optional, highly recommended for security reasons
-                            })
-                            .then(
-                                (response) => {
-                                    console.log('SUCCESS!', response.status, response.text);
-                                },
-                                (err) => {
-                                    kavehAPI.get(KavehEndPoint.VERIFY, {
-                                        params: {
-                                            // token: `${item.symbol}-${(new Date()).toLocaleString()}]`,
-                                            token: item.symbol,
-                                            receptor: '09199660906',
-                                            template: 'verifyCode'
-                                        }
-                                    })
-                                },
-                            );
+                        baleAPI.post(BaleEndPoint.SEND_MESSAGE, {
+                            chat_id: '@amkztracker',
+                            text: `${item.symbol} در 15 دقیقه اخیر ${(((item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 5]) - 1) * 100).toFixed(2)}% رشد داشته است.
+                                    قیمت پایانی فعلی : ${item.data.c[item.data.c.length - 1]}
+                                    قیمت پایانی یک ربع پیش : ${item.data.c[item.data.c.length - 5]}
+                                     تاریخ  : ${(new Date()).toLocaleDateString()}
+                                     ساعت  : ${(new Date()).toLocaleTimeString()}`
+                        })
+
+                        // emailjs
+                        //     .send('tracker_2024', 'template_ml2qval', {
+                        //         message: `${item.symbol} در 15 دقیقه اخیر ${(((item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 5]) - 1) * 100).toFixed(2)}% رشد داشته است.
+                        //         قیمت پایانی فعلی : ${item.data.c[item.data.c.length - 1]}
+                        //         قیمت پایانی یک ربع پیش : ${item.data.c[item.data.c.length - 5]}
+                        //         تاریخ  : ${(new Date()).toLocaleDateString()}
+                        //         ساعت  : ${(new Date()).toLocaleTimeString()}`,
+                        //         to_name: 'خودم',
+                        //         from_name: item.symbol
+                        //     }, {
+                        //         publicKey: 'UQDXzFdSyxsFtOgyH',
+                        //         privateKey: '_wZA6I-x2ksWVSWDJmpYP', // optional, highly recommended for security reasons
+                        //     })
+                        //     .then(
+                        //         (response) => {
+                        //             console.log('SUCCESS!', response.status, response.text);
+                        //         },
+                        //         (err) => {
+                        //             kavehAPI.get(KavehEndPoint.VERIFY, {
+                        //                 params: {
+                        //                     // token: `${item.symbol}-${(new Date()).toLocaleString()}]`,
+                        //                     token: item.symbol,
+                        //                     receptor: '09199660906',
+                        //                     template: 'verifyCode'
+                        //                 }
+                        //             })
+                        //         },
+                        //     );
 
 
                     } catch (error) {
