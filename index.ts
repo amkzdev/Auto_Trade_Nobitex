@@ -1,17 +1,19 @@
 import { NobitexEndPoint } from "./api/nobitex"
 import { baleAPI, kavehAPI, nobitexApi } from "./config/api"
 import { nobitexSymbolsUSDT } from "./variables/nobitex"
-import { OHLCResponseType } from "./types/nobitex"
+import { NobitexStatusType, OHLCResponseType } from "./types/nobitex"
 import { KavehEndPoint } from "./api/kaveh"
 import emailjs from '@emailjs/nodejs';
 import { BaleEndPoint } from "./api/bale"
 import { concatWords } from "./utils"
+import { AxiosResponse } from "axios"
 
 // const templateParams = {
 //     message: 'بیت کوین در 5  دقیقه اخیر رشد داشته',
 //     from_name: 'BTCUSDT',
 //     to_name:'خودم'
 //   };
+
 
 
 setInterval(async () => {
@@ -41,7 +43,7 @@ setInterval(async () => {
         )
 
         try {
-            data.forEach(item => {
+            data.forEach(async item => {
                 //Calculate 15 minute with 1% Up
                 if (
                     // item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 4] > 1.01
@@ -80,6 +82,7 @@ setInterval(async () => {
                             )
                             && (item.data.v[item.data.c.length - 1] / averageVolume) >= 3) {
 
+
                             BaleEndPoint.SEND_MESSAGE(
                                 concatWords([
                                     item.symbol,
@@ -92,7 +95,7 @@ setInterval(async () => {
                                         ` قیمت پایانی کندل فعلی و کندل پیشین پیش از 2 درصد اختلاف دارند.
                                         ${(((item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 2]) - 1) * 100).toFixed(2)}%
                                         `,
-                                        ` #معامله
+                                    ` #معامله
                                         قیمت پایانی فعلی : ${item.data.c[item.data.c.length - 1]}
                                         قیمت آغازین  : ${item.data.o[item.data.c.length - 5]}
                                          تاریخ کندل  : ${(new Date(item.data.t[item.data.c.length - 5] * 1000)).toLocaleTimeString()}
@@ -101,47 +104,32 @@ setInterval(async () => {
                                         `
                                 ])
                             )
-                            // BaleEndPoint.SEND_MESSAGE(`${item.symbol}
+
+                            if (process.env.TRADING == '1') {
+                                ///Get Budget
+                                try {
+
+                                    const { data } = await nobitexApi.post<{ balance: number, status: NobitexStatusType }>(NobitexEndPoint.BALANCE, { currency: 'usdt' })
+                                    
+                                    if(Number(data?.balance ?? 0)   > 5.1) 
+                                    {
+
+                                    }
+
+                                    ///Trade
 
 
-                            // #معامله
-                            // قیمت پایانی فعلی : ${item.data.c[item.data.c.length - 1]}
-                            // قیمت آغازین  : ${item.data.o[item.data.c.length - 5]}
-                            //  تاریخ کندل  : ${(new Date(item.data.t[item.data.c.length - 5] * 1000)).toLocaleTimeString()}
-                            //  تاریخ  : ${(new Date()).toLocaleDateString()}
-                            //  ساعت  : ${(new Date()).toLocaleTimeString()}
-                            // `)
+                                } catch (error) {
+                                    console.log('Error', error)
+                                    BaleEndPoint.SEND_MESSAGE('خطا در دریافت موجودی حساب به تتر')
+                                }
+
+
+
+                            }
+
 
                         }
-
-                        // emailjs
-                        //     .send('tracker_2024', 'template_ml2qval', {
-                        //         message: `${item.symbol} در 15 دقیقه اخیر ${(((item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 5]) - 1) * 100).toFixed(2)}% رشد داشته است.
-                        //         قیمت پایانی فعلی : ${item.data.c[item.data.c.length - 1]}
-                        //         قیمت پایانی یک ربع پیش : ${item.data.c[item.data.c.length - 5]}
-                        //         تاریخ  : ${(new Date()).toLocaleDateString()}
-                        //         ساعت  : ${(new Date()).toLocaleTimeString()}`,
-                        //         to_name: 'خودم',
-                        //         from_name: item.symbol
-                        //     }, {
-                        //         publicKey: 'UQDXzFdSyxsFtOgyH',
-                        //         privateKey: '_wZA6I-x2ksWVSWDJmpYP', // optional, highly recommended for security reasons
-                        //     })
-                        //     .then(
-                        //         (response) => {
-                        //             console.log('SUCCESS!', response.status, response.text);
-                        //         },
-                        //         (err) => {
-                        //             kavehAPI.get(KavehEndPoint.VERIFY, {
-                        //                 params: {
-                        //                     // token: `${item.symbol}-${(new Date()).toLocaleString()}]`,
-                        //                     token: item.symbol,
-                        //                     receptor: '09199660906',
-                        //                     template: 'verifyCode'
-                        //                 }
-                        //             })
-                        //         },
-                        //     );
 
 
                     } catch (error) {
@@ -174,3 +162,35 @@ setInterval(async () => {
 
 }, Number(process.env.NODE_TRACK_TIME_INTERVAL) * 1000 * 60)
 
+
+
+
+
+// emailjs
+//     .send('tracker_2024', 'template_ml2qval', {
+//         message: `${item.symbol} در 15 دقیقه اخیر ${(((item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 5]) - 1) * 100).toFixed(2)}% رشد داشته است.
+//         قیمت پایانی فعلی : ${item.data.c[item.data.c.length - 1]}
+//         قیمت پایانی یک ربع پیش : ${item.data.c[item.data.c.length - 5]}
+//         تاریخ  : ${(new Date()).toLocaleDateString()}
+//         ساعت  : ${(new Date()).toLocaleTimeString()}`,
+//         to_name: 'خودم',
+//         from_name: item.symbol
+//     }, {
+//         publicKey: 'UQDXzFdSyxsFtOgyH',
+//         privateKey: '_wZA6I-x2ksWVSWDJmpYP', // optional, highly recommended for security reasons
+//     })
+//     .then(
+//         (response) => {
+//             console.log('SUCCESS!', response.status, response.text);
+//         },
+//         (err) => {
+//             kavehAPI.get(KavehEndPoint.VERIFY, {
+//                 params: {
+//                     // token: `${item.symbol}-${(new Date()).toLocaleString()}]`,
+//                     token: item.symbol,
+//                     receptor: '09199660906',
+//                     template: 'verifyCode'
+//                 }
+//             })
+//         },
+//     );
