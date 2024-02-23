@@ -4,5 +4,6 @@ export const NobitexEndPoint = Object.freeze ({
     ORDERBOOK  : "v2/orderbook",
     ORDERBOOK_SYMBOL :(symbol:nobitexSymbolsTypes)=>`v2/orderbook/${symbol}`,
     OHLC:'/market/udf/history',
-    BALANCE:'/users/wallets/balance'
+    BALANCE:'/users/wallets/balance',
+    SEND_ORDER:'market/orders/add'
 })

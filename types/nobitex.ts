@@ -22,7 +22,7 @@ export interface OHLCResponseType {
 
 export interface SendNobitexSpotOrderType {
     type: 'sell' | 'buy'
-    srcCurrency: nobitexSymbolsTypes;
+    srcCurrency: string // nobitexSymbolsTypes;
     dstCurrency: 'rls' | 'usdt';
     amount: number;
     price?: number;
@@ -32,3 +32,30 @@ export interface SendNobitexSpotOrderType {
     // mode?:'oco',
     // stopLimitPrice	?:number
 }
+
+export interface SendOrderResponseType { 
+    status:NobitexStatusType,
+    order: {
+        id: number,
+        type: 'sell' | 'buy',
+        execution: 'StopMarket' | string,
+        market: string,
+        srcCurrency: string,
+        dstCurrency: string,
+        price: number  |string,
+        amount: number,
+        param1: number,
+        totalPrice: number,
+        totalOrderPrice: number,
+        matchedAmount: number,
+        unmatchedAmount: number,
+        status: OrderStatusType,
+        partial: false,
+        fee: number,
+        created_at: string
+        averagePrice: number,
+        clientOrderId: string,
+      }
+}
+
+export type OrderStatusType = 'open' |'active' |'inactive'

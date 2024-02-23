@@ -1,18 +1,11 @@
 import { NobitexEndPoint } from "./api/nobitex"
 import { baleAPI, kavehAPI, nobitexApi } from "./config/api"
 import { nobitexSymbolsUSDT } from "./variables/nobitex"
-import { NobitexStatusType, OHLCResponseType } from "./types/nobitex"
+import { NobitexStatusType, OHLCResponseType, OrderBookResponseType, SendNobitexSpotOrderType, SendOrderResponseType } from "./types/nobitex"
 import { KavehEndPoint } from "./api/kaveh"
-import emailjs from '@emailjs/nodejs';
 import { BaleEndPoint } from "./api/bale"
 import { concatWords } from "./utils"
 import { AxiosResponse } from "axios"
-
-// const templateParams = {
-//     message: 'بیت کوین در 5  دقیقه اخیر رشد داشته',
-//     from_name: 'BTCUSDT',
-//     to_name:'خودم'
-//   };
 
 
 
@@ -106,14 +99,101 @@ setInterval(async () => {
                             )
 
                             if (process.env.TRADING == '1') {
-                                ///Get Budget
+
+                                ///Get Balance
+
                                 try {
 
                                     const { data } = await nobitexApi.post<{ balance: number, status: NobitexStatusType }>(NobitexEndPoint.BALANCE, { currency: 'usdt' })
-                                    
-                                    if(Number(data?.balance ?? 0)   > 5.1) 
-                                    {
 
+                                    if (Number(data?.balance ?? 0) > 5.1) {
+
+                                        try {
+                                            //Send Buy Order
+                                            const { data } = await nobitexApi.post<SendOrderResponseType, AxiosResponse<SendOrderResponseType>, SendNobitexSpotOrderType>(NobitexEndPoint.SEND_ORDER,
+                                                {
+                                                    amount: (5.5),
+                                                    clientOrderId: `BUY - ${item.symbol} - ${(new Date()).toLocaleString()}`,
+                                                    dstCurrency: 'usdt',
+                                                    srcCurrency: item.symbol.toLowerCase(),
+                                                    type: 'buy',
+                                                    execution: 'market',
+                                                })
+
+                                            if (data.status == 'ok') {
+
+                                                BaleEndPoint.SEND_MESSAGE(`
+                                                سفارش خرید با موفقیت ثبت شد در حال تلاش برای ثبت سفارش فروش.
+                                                طرف : ${data.order.type}
+                                                ایدی : ${data.order.id}
+                                                قیمت : ${data.order.price}
+                                                نماد : ${data.order.srcCurrency} / ${data.order.dstCurrency}
+                                                حجم : ${data.order.amount}
+                                                تاریخ ایجاد : ${data.order.created_at}
+                                                ${(new Date()).toLocaleString()}
+
+                                                `)
+
+                                                //Send Sell Order
+
+                                                if (typeof data.order.price == 'number') {
+                                                    try {
+
+
+                                                        const { data: sellData } = await nobitexApi.post<SendOrderResponseType, AxiosResponse<SendOrderResponseType>, SendNobitexSpotOrderType>(NobitexEndPoint.SEND_ORDER,
+                                                            {
+                                                                amount: data.order.amount,
+                                                                clientOrderId: `SEll - ${item.symbol} - ${(new Date()).toLocaleString()}`,
+                                                                dstCurrency: 'usdt',
+                                                                srcCurrency: item.symbol.toLowerCase(),
+                                                                type: 'sell',
+                                                                execution: 'limit',
+                                                                price: (data.order.price * 1.03)
+                                                            })
+
+                                                        if (sellData.status == 'ok') {
+                                                            BaleEndPoint.SEND_MESSAGE(`
+                                                            سفارش فروش با موفقیت ثبت شد.
+                                                            طرف : ${sellData.order.type}
+                                                            ایدی : ${sellData.order.id}
+                                                            قیمت : ${sellData.order.price}
+                                                            نماد : ${sellData.order.srcCurrency} / ${data.order.dstCurrency}
+                                                            حجم : ${sellData.order.amount}
+                                                            تاریخ ایجاد : ${sellData.order.created_at}
+                                                            
+                                                            ${(new Date()).toLocaleString()}
+            
+                                                            `)
+                                                        }
+
+                                                    } catch (error) {
+                                                        BaleEndPoint.SEND_MESSAGE(`
+                                                        خطا در ثبت سفارش فروش
+                                                        
+                                                        ${(new Date()).toLocaleString()}
+        
+                                                        ${error?.toString()}
+                                                        `)
+                                                    }
+                                                }
+
+
+                                            }
+
+                                        } catch (error) {
+                                            BaleEndPoint.SEND_MESSAGE(`
+                                                خطا در ثبت سفارش خرید
+                                                
+                                                ${(new Date()).toLocaleString()}
+
+                                                ${error?.toString()}
+                                                `)
+                                        }
+
+                                    }
+
+                                    else{
+                                        BaleEndPoint.SEND_MESSAGE('موجودی تتری حساب کمتر از 5.1 دلار است.')
                                     }
 
                                     ///Trade
@@ -121,7 +201,22 @@ setInterval(async () => {
 
                                 } catch (error) {
                                     console.log('Error', error)
-                                    BaleEndPoint.SEND_MESSAGE('خطا در دریافت موجودی حساب به تتر')
+                                    BaleEndPoint.SEND_MESSAGE(`
+                                    خطا در دریافت موجودی حساب به تتر
+                                    
+                                    ${(new Date()).toLocaleString()}
+
+                                    ${error?.toString()}
+                                    `)
+                                    kavehAPI.get(KavehEndPoint.VERIFY, {
+                                        params: {
+                                            // token: `${item.symbol}-${(new Date()).toLocaleString()}]`,
+                                            token: item.symbol,
+                                            receptor: '09199660906',
+                                            template: 'verifyCode'
+                                        }
+                                    })
+
                                 }
 
 
@@ -142,12 +237,14 @@ setInterval(async () => {
             })
 
         } catch (error) {
+            BaleEndPoint.SEND_MESSAGE(`خطا در محاسبات`)
             console.log('---Error in Processing Data---')
             console.log(error)
             console.log('----------------------------')
         }
 
     } catch (error) {
+        BaleEndPoint.SEND_MESSAGE(`خطا در دریافت اطلاعات`)
 
         console.log('---Error in Fetching Data---')
         console.log(error)
