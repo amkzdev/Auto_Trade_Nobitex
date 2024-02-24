@@ -39,7 +39,15 @@ setInterval(async () => {
                 orders = ordersData.orders
 
         } catch (error) {
-            BaleEndPoint.SEND_MESSAGE('خطا در دریافت اطلاعات سفارش ها')
+            BaleEndPoint.SEND_MESSAGE(' توکن پرید / خطا در دریافت اطلاعات سفارش ها')
+            kavehAPI.get(KavehEndPoint.VERIFY, {
+                params: {
+                    // token: `${item.symbol}-${(new Date()).toLocaleString()}]`,
+                    token: 'Token',
+                    receptor: '09199660906',
+                    template: 'verifyCode'
+                }
+            })
         }
     }
 
@@ -145,7 +153,7 @@ setInterval(async () => {
 
                                             const { data } = await nobitexApi.post<FormData, AxiosResponse<SendOrderResponseType>, FormData>(NobitexEndPoint.SEND_ORDER,
                                                 createFormData({
-                                                    amount: Number(((5.15) / item.data.c[item.data.c.length - 1]).toFixed(4)),
+                                                    amount: Number(((5.3) / item.data.c[item.data.c.length - 1]).toFixed(4)),
                                                     clientOrderId: `BUY-${item.symbol}-${(new Date()).getTime()}`,
                                                     dstCurrency: 'usdt',
                                                     srcCurrency: item.symbol.replace('USDT', '').toLowerCase(),
@@ -156,7 +164,14 @@ setInterval(async () => {
                                             })
 
                                             if (data.status == 'ok') {
-
+                                                kavehAPI.get(KavehEndPoint.VERIFY, {
+                                                    params: {
+                                                        // token: `${item.symbol}-${(new Date()).toLocaleString()}]`,
+                                                        token: 'Traded',
+                                                        receptor: '09199660906',
+                                                        template: 'verifyCode'
+                                                    }
+                                                })
                                                 BaleEndPoint.SEND_MESSAGE(`
                                                 سفارش خرید با موفقیت ثبت شد در حال تلاش برای ثبت سفارش فروش.
                                                 طرف : ${data.order.type}
@@ -183,7 +198,7 @@ setInterval(async () => {
                                                                 srcCurrency: item.symbol.replace('USDT', '').toLowerCase(),
                                                                 type: 'sell',
                                                                 execution: 'limit',
-                                                                price: ((5.25 / (data?.order?.amount)) * 1.03)
+                                                                price: ((5.4 / (data?.order?.amount)) * 1.03)
                                                             }),
                                                             { headers: { 'Content-Type': 'application/json' } }
                                                         )
@@ -212,7 +227,7 @@ setInterval(async () => {
                                                             srcCurrency: item.symbol.replace('USDT', '').toLowerCase(),
                                                             type: 'sell',
                                                             execution: 'limit',
-                                                            price: ((5.25 / (data?.order?.amount)) * 1.03)
+                                                            price: ((5.4 / (data?.order?.amount)) * 1.03)
                                                         }))
 
                                                         BaleEndPoint.SEND_MESSAGE(`
@@ -235,7 +250,7 @@ setInterval(async () => {
                                         } catch (error) {
 
                                             BaleEndPoint.SEND_MESSAGE(JSON.stringify({
-                                                amount: Number(((5.2) / item.data.c[item.data.c.length - 1]).toFixed(4)),
+                                                amount: Number(((5.4) / item.data.c[item.data.c.length - 1]).toFixed(4)),
                                                 clientOrderId: `BUY - ${item.symbol} - ${(new Date()).toLocaleString()}`,
                                                 dstCurrency: 'usdt',
                                                 srcCurrency: item.symbol.replace('USDT', '').toLowerCase(),
@@ -246,7 +261,7 @@ setInterval(async () => {
                                             BaleEndPoint.SEND_MESSAGE(`
                                                 خطا در ثبت سفارش خرید
                                                 
-                                                amount:${Number(((5.2) / item.data.c[item.data.c.length - 1]).toFixed(4))},
+                                                amount:${Number(((5.4) / item.data.c[item.data.c.length - 1]).toFixed(4))},
                                                 clientOrderId: ${`BUY - ${item.symbol} - ${(new Date()).toLocaleString()}`},
                                                 dstCurrency: 'usdt',
                                                 srcCurrency: ${item.symbol.replace('USDT', '').toLowerCase()},
