@@ -21,6 +21,8 @@ import { AxiosResponse } from "axios"
 // }).then(e => console.log(e, e.data))
 //     .catch(e => console.log(e))
 
+var isTokenMessageSend = false
+
 setInterval(async () => {
 
     console.log('Tracking...', (new Date()).toLocaleString())
@@ -40,14 +42,17 @@ setInterval(async () => {
 
         } catch (error) {
             BaleEndPoint.SEND_MESSAGE(' توکن پرید / خطا در دریافت اطلاعات سفارش ها')
-            kavehAPI.get(KavehEndPoint.VERIFY, {
-                params: {
-                    // token: `${item.symbol}-${(new Date()).toLocaleString()}]`,
-                    token: 'Token',
-                    receptor: '09199660906',
-                    template: 'verifyCode'
-                }
-            })
+            if (!isTokenMessageSend) {
+                kavehAPI.get(KavehEndPoint.VERIFY, {
+                    params: {
+                        // token: `${item.symbol}-${(new Date()).toLocaleString()}]`,
+                        token: 'Token',
+                        receptor: '09199660906',
+                        template: 'verifyCode'
+                    }
+                })
+                isTokenMessageSend = true
+            }
         }
     }
 
