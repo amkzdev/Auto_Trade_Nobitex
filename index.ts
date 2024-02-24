@@ -1,7 +1,7 @@
 import { NobitexEndPoint } from "./api/nobitex"
 import { baleAPI, kavehAPI, nobitexApi } from "./config/api"
 import { nobitexSymbolsUSDT } from "./variables/nobitex"
-import { NobitexStatusType, OHLCResponseType, OrderBookResponseType, SendNobitexSpotOrderType, SendOrderResponseType } from "./types/nobitex"
+import { NobitexStatusType, OHLCResponseType, OrderBookResponseType, OrderListType, SendNobitexSpotOrderType, SendOrderResponseType } from "./types/nobitex"
 import { KavehEndPoint } from "./api/kaveh"
 import { BaleEndPoint } from "./api/bale"
 import { concatWords, createFormData } from "./utils"
@@ -26,6 +26,23 @@ setInterval(async () => {
     console.log('Tracking...', (new Date()).toLocaleString())
 
     //Calculate Change Percent 
+
+    var orders: OrderListType['orders'] = []
+
+    if (process.env.TRADING == '1') {
+
+
+        try {
+
+            const { data: ordersData } = await nobitexApi.get<OrderListType, AxiosResponse<OrderListType>, OrderListType>(NobitexEndPoint.ORDER_LIST)
+            if (ordersData.status == 'ok')
+                orders = ordersData.orders
+
+        } catch (error) {
+            BaleEndPoint.SEND_MESSAGE('خطا در دریافت اطلاعات سفارش ها')
+        }
+    }
+
 
     try {
 
@@ -118,13 +135,17 @@ setInterval(async () => {
 
                                     const { data } = await nobitexApi.post<{ balance: number, status: NobitexStatusType }>(NobitexEndPoint.BALANCE, { currency: 'usdt' })
 
-                                    if (Number(data?.balance ?? 0) > 5.1) {
+                                    if (Number(data?.balance ?? 0) > 5.1 && orders?.findIndex(o => o?.clientOrderId?.includes(item.symbol)) == -1) {
 
                                         try {
                                             //Send Buy Order
+
+
+
+
                                             const { data } = await nobitexApi.post<FormData, AxiosResponse<SendOrderResponseType>, FormData>(NobitexEndPoint.SEND_ORDER,
                                                 createFormData({
-                                                    amount: Number(((5.2) / item.data.c[item.data.c.length - 1]).toFixed(4)),
+                                                    amount: Number(((5.15) / item.data.c[item.data.c.length - 1]).toFixed(4)),
                                                     clientOrderId: `BUY-${item.symbol}-${(new Date()).getTime()}`,
                                                     dstCurrency: 'usdt',
                                                     srcCurrency: item.symbol.replace('USDT', '').toLowerCase(),
@@ -150,7 +171,7 @@ setInterval(async () => {
 
                                                 //Send Sell Order
 
-                                                if (data.status=='ok') {
+                                                if (data.status == 'ok') {
                                                     try {
 
 
@@ -241,7 +262,13 @@ setInterval(async () => {
                                     }
 
                                     else {
-                                        BaleEndPoint.SEND_MESSAGE('موجودی تتری حساب کمتر از 5.1 دلار است.')
+                                        if (Number(data?.balance ?? 0) <= 5.1)
+                                            BaleEndPoint.SEND_MESSAGE('موجودی تتری حساب کمتر از 5.1 دلار است.')
+                                        else if (orders.findIndex(o => o.clientOrderId.includes(item.symbol)) != -1)
+                                            BaleEndPoint.SEND_MESSAGE(`برای نماد ${item.symbol} قبلا خرید انجام شده است.`)
+                                        else
+                                            BaleEndPoint.SEND_MESSAGE('خطای جدید')
+
                                     }
 
                                     ///Trade

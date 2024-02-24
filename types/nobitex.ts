@@ -59,3 +59,27 @@ export interface SendOrderResponseType {
 }
 
 export type OrderStatusType = 'open' |'active' |'inactive'
+
+
+export interface OrderListType
+{
+    status: NobitexStatusType,
+    orders: Array <
+        {
+            type: 'sell' | 'buy',
+            execution: 'Limit' | 'Market',
+            tradeType: 'Spot' | string,
+            srcCurrency: string,
+            dstCurrency: string,
+            price:number,
+            amount: number,
+            totalPrice: number,
+            totalOrderPrice: number,
+            matchedAmount: number,
+            unmatchedAmount: number,
+            clientOrderId: string | null,
+            isMyOrder: boolean
+        }>
+    ,
+    hasNext: false
+}
