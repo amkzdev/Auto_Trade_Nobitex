@@ -4,10 +4,22 @@ import { nobitexSymbolsUSDT } from "./variables/nobitex"
 import { NobitexStatusType, OHLCResponseType, OrderBookResponseType, SendNobitexSpotOrderType, SendOrderResponseType } from "./types/nobitex"
 import { KavehEndPoint } from "./api/kaveh"
 import { BaleEndPoint } from "./api/bale"
-import { concatWords } from "./utils"
+import { concatWords, createFormData } from "./utils"
 import { AxiosResponse } from "axios"
 
 
+// nobitexApi.post<FormData, AxiosResponse<SendOrderResponseType>, FormData>(NobitexEndPoint.SEND_ORDER,
+//     createFormData({
+//         amount: 0.2420,
+//         clientOrderId: `BUY-btc-${(new Date()).getTime()}`,
+//         dstCurrency: 'usdt',
+//         srcCurrency: 'btc',
+//         type: 'buy',
+//         execution: 'market',
+//     }), {
+//     headers: { 'Content-Type': 'application/json' }
+// }).then(e => console.log(e, e.data))
+//     .catch(e => console.log(e))
 
 setInterval(async () => {
 
@@ -110,15 +122,17 @@ setInterval(async () => {
 
                                         try {
                                             //Send Buy Order
-                                            const { data } = await nobitexApi.post<SendOrderResponseType, AxiosResponse<SendOrderResponseType>, SendNobitexSpotOrderType>(NobitexEndPoint.SEND_ORDER,
-                                                {
-                                                    amount: Number(((5.2)/item.data.c[item.data.c.length - 1]).toFixed(4)),
-                                                    clientOrderId: `BUY - ${item.symbol} - ${(new Date()).toLocaleString()}`,
+                                            const { data } = await nobitexApi.post<FormData, AxiosResponse<SendOrderResponseType>, FormData>(NobitexEndPoint.SEND_ORDER,
+                                                createFormData({
+                                                    amount: Number(((5.2) / item.data.c[item.data.c.length - 1]).toFixed(4)),
+                                                    clientOrderId: `BUY- ${item.symbol}- ${(new Date()).getTime()}`,
                                                     dstCurrency: 'usdt',
-                                                    srcCurrency: item.symbol.replace('USDT','').toLowerCase(),
+                                                    srcCurrency: item.symbol.replace('USDT', '').toLowerCase(),
                                                     type: 'buy',
                                                     execution: 'market',
-                                                })
+                                                }), {
+                                                headers: { 'Content-Type': 'application/json' }
+                                            })
 
                                             if (data.status == 'ok') {
 
@@ -140,16 +154,18 @@ setInterval(async () => {
                                                     try {
 
 
-                                                        const { data: sellData } = await nobitexApi.post<SendOrderResponseType, AxiosResponse<SendOrderResponseType>, SendNobitexSpotOrderType>(NobitexEndPoint.SEND_ORDER,
-                                                            {
+                                                        const { data: sellData } = await nobitexApi.post<SendOrderResponseType, AxiosResponse<SendOrderResponseType>, FormData>(NobitexEndPoint.SEND_ORDER,
+                                                            createFormData({
                                                                 amount: data.order.amount,
-                                                                clientOrderId: `SEll - ${item.symbol} - ${(new Date()).toLocaleString()}`,
+                                                                clientOrderId: `SEll- ${item.symbol}-${(new Date()).getTime()}`,
                                                                 dstCurrency: 'usdt',
-                                                                srcCurrency: item.symbol.replace('USDT','').toLowerCase(),
+                                                                srcCurrency: item.symbol.replace('USDT', '').toLowerCase(),
                                                                 type: 'sell',
                                                                 execution: 'limit',
                                                                 price: (data.order.price * 1.03)
-                                                            })
+                                                            }),
+                                                            { headers: { 'Content-Type': 'application/json' } }
+                                                        )
 
                                                         if (sellData.status == 'ok') {
                                                             BaleEndPoint.SEND_MESSAGE(`
@@ -184,22 +200,22 @@ setInterval(async () => {
 
                                         } catch (error) {
 
-                                            BaleEndPoint.SEND_MESSAGE(JSON.stringify(                                          {
-                                                amount: Number(((5.2)/item.data.c[item.data.c.length - 1]).toFixed(4)),
+                                            BaleEndPoint.SEND_MESSAGE(JSON.stringify({
+                                                amount: Number(((5.2) / item.data.c[item.data.c.length - 1]).toFixed(4)),
                                                 clientOrderId: `BUY - ${item.symbol} - ${(new Date()).toLocaleString()}`,
                                                 dstCurrency: 'usdt',
-                                                srcCurrency: item.symbol.replace('USDT','').toLowerCase(),
+                                                srcCurrency: item.symbol.replace('USDT', '').toLowerCase(),
                                                 type: 'buy',
                                                 execution: 'market',
                                             }))
-                                            
+
                                             BaleEndPoint.SEND_MESSAGE(`
                                                 خطا در ثبت سفارش خرید
                                                 
-                                                amount:${ Number(((5.2)/item.data.c[item.data.c.length - 1]).toFixed(4))},
+                                                amount:${Number(((5.2) / item.data.c[item.data.c.length - 1]).toFixed(4))},
                                                 clientOrderId: ${`BUY - ${item.symbol} - ${(new Date()).toLocaleString()}`},
                                                 dstCurrency: 'usdt',
-                                                srcCurrency: ${item.symbol.replace('USDT','').toLowerCase()},
+                                                srcCurrency: ${item.symbol.replace('USDT', '').toLowerCase()},
 
                                                 ${(new Date()).toLocaleString()}
 
@@ -211,7 +227,7 @@ setInterval(async () => {
 
                                     }
 
-                                    else{
+                                    else {
                                         BaleEndPoint.SEND_MESSAGE('موجودی تتری حساب کمتر از 5.1 دلار است.')
                                     }
 
