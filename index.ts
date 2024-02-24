@@ -125,7 +125,7 @@ setInterval(async () => {
                                             const { data } = await nobitexApi.post<FormData, AxiosResponse<SendOrderResponseType>, FormData>(NobitexEndPoint.SEND_ORDER,
                                                 createFormData({
                                                     amount: Number(((5.2) / item.data.c[item.data.c.length - 1]).toFixed(4)),
-                                                    clientOrderId: `BUY- ${item.symbol}- ${(new Date()).getTime()}`,
+                                                    clientOrderId: `BUY-${item.symbol}-${(new Date()).getTime()}`,
                                                     dstCurrency: 'usdt',
                                                     srcCurrency: item.symbol.replace('USDT', '').toLowerCase(),
                                                     type: 'buy',
@@ -150,19 +150,19 @@ setInterval(async () => {
 
                                                 //Send Sell Order
 
-                                                if (typeof data.order.price == 'number') {
+                                                if (data.status=='ok') {
                                                     try {
 
 
                                                         const { data: sellData } = await nobitexApi.post<SendOrderResponseType, AxiosResponse<SendOrderResponseType>, FormData>(NobitexEndPoint.SEND_ORDER,
                                                             createFormData({
                                                                 amount: data.order.amount,
-                                                                clientOrderId: `SEll- ${item.symbol}-${(new Date()).getTime()}`,
+                                                                clientOrderId: `SEll-${item.symbol}-${(new Date()).getTime()}`,
                                                                 dstCurrency: 'usdt',
                                                                 srcCurrency: item.symbol.replace('USDT', '').toLowerCase(),
                                                                 type: 'sell',
                                                                 execution: 'limit',
-                                                                price: (data.order.price * 1.03)
+                                                                price: ((5.25 / (data?.order?.amount)) * 1.03)
                                                             }),
                                                             { headers: { 'Content-Type': 'application/json' } }
                                                         )
@@ -183,12 +183,25 @@ setInterval(async () => {
                                                         }
 
                                                     } catch (error) {
+
+                                                        BaleEndPoint.SEND_MESSAGE(JSON.stringify({
+                                                            amount: data.order.amount,
+                                                            clientOrderId: `SEll-${item.symbol}-${(new Date()).getTime()}`,
+                                                            dstCurrency: 'usdt',
+                                                            srcCurrency: item.symbol.replace('USDT', '').toLowerCase(),
+                                                            type: 'sell',
+                                                            execution: 'limit',
+                                                            price: ((5.25 / (data?.order?.amount)) * 1.03)
+                                                        }))
+
                                                         BaleEndPoint.SEND_MESSAGE(`
                                                         خطا در ثبت سفارش فروش
                                                         
                                                         ${(new Date()).toLocaleString()}
         
-                                                        ${error?.response.toString()}
+                                                        ${error?.response?.data.toString()}
+
+                                                        ${error?.response?.toString()}
 
                                                         ${error?.toString()}
                                                         `)
