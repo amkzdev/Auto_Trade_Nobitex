@@ -115,7 +115,7 @@ setInterval(async () => {
                                                     amount: Number(((5.2)/item.data.c[item.data.c.length - 1]).toFixed(4)),
                                                     clientOrderId: `BUY - ${item.symbol} - ${(new Date()).toLocaleString()}`,
                                                     dstCurrency: 'usdt',
-                                                    srcCurrency: item.symbol.toLowerCase(),
+                                                    srcCurrency: item.symbol.replace('USDT','').toLowerCase(),
                                                     type: 'buy',
                                                     execution: 'market',
                                                 })
@@ -145,7 +145,7 @@ setInterval(async () => {
                                                                 amount: data.order.amount,
                                                                 clientOrderId: `SEll - ${item.symbol} - ${(new Date()).toLocaleString()}`,
                                                                 dstCurrency: 'usdt',
-                                                                srcCurrency: item.symbol.toLowerCase(),
+                                                                srcCurrency: item.symbol.replace('USDT','').toLowerCase(),
                                                                 type: 'sell',
                                                                 execution: 'limit',
                                                                 price: (data.order.price * 1.03)
@@ -172,6 +172,8 @@ setInterval(async () => {
                                                         
                                                         ${(new Date()).toLocaleString()}
         
+                                                        ${error?.response.toString()}
+
                                                         ${error?.toString()}
                                                         `)
                                                     }
@@ -181,12 +183,27 @@ setInterval(async () => {
                                             }
 
                                         } catch (error) {
+
+                                            BaleEndPoint.SEND_MESSAGE(JSON.stringify(                                          {
+                                                amount: Number(((5.2)/item.data.c[item.data.c.length - 1]).toFixed(4)),
+                                                clientOrderId: `BUY - ${item.symbol} - ${(new Date()).toLocaleString()}`,
+                                                dstCurrency: 'usdt',
+                                                srcCurrency: item.symbol.replace('USDT','').toLowerCase(),
+                                                type: 'buy',
+                                                execution: 'market',
+                                            }))
+                                            
                                             BaleEndPoint.SEND_MESSAGE(`
                                                 خطا در ثبت سفارش خرید
                                                 
+                                                amount:${ Number(((5.2)/item.data.c[item.data.c.length - 1]).toFixed(4))},
+                                                clientOrderId: ${`BUY - ${item.symbol} - ${(new Date()).toLocaleString()}`},
+                                                dstCurrency: 'usdt',
+                                                srcCurrency: ${item.symbol.replace('USDT','').toLowerCase()},
+
                                                 ${(new Date()).toLocaleString()}
 
-                                                ${error?.response?.data?.toString()}
+                                                ${error?.response?.toString()}
 
                                                 ${error?.toString()}
                                                 `)
