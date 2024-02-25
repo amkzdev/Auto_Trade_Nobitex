@@ -78,7 +78,7 @@ export const nobitexSymbolsUSDT =
         "IMXUSDT",
         "BLURUSDT",
         "100K_FLOKIUSDT",
-        "1B_BABYDOGEUSDT",
+        // "1B_BABYDOGEUSDT", Low 24Valume
         "1M_NFTUSDT",
         "1M_BTTUSDT",
         "TUSDT",
