@@ -1,11 +1,13 @@
 import { NobitexEndPoint } from "./api/nobitex"
 import { baleAPI, kavehAPI, nobitexApi } from "./config/api"
-import { nobitexSymbolsUSDT } from "./variables/nobitex"
+import { TETTER_TRADE_WAGE_PERCENT, nobitexSymbolsUSDT } from "./variables/nobitex"
 import { NobitexStatusType, OHLCResponseType, OrderBookResponseType, OrderListType, SendNobitexSpotOrderType, SendOrderResponseType } from "./types/nobitex"
 import { KavehEndPoint } from "./api/kaveh"
 import { BaleEndPoint } from "./api/bale"
 import { concatWords, createFormData, createTradeMessage } from "./utils"
 import { AxiosResponse } from "axios"
+
+
 
 
 // nobitexApi.post<FormData, AxiosResponse<SendOrderResponseType>, FormData>(NobitexEndPoint.SEND_ORDER,
@@ -181,7 +183,7 @@ setInterval(async () => {
                                                 BaleEndPoint.SEND_MESSAGE_TRADES(createTradeMessage({
                                                     date: data.order.created_at,
                                                     id: data.order.clientOrderId,
-                                                    price: Number((data.order.totalPrice / data.order.amount).toFixed(4)),
+                                                    price: Number((data.order.totalOrderPrice / data.order.amount).toFixed(4)),
                                                     side: 'buy',
                                                     symbol: item.symbol,
                                                     totalPrice: data?.order?.totalPrice || 0,
@@ -210,13 +212,13 @@ setInterval(async () => {
 
                                                     const { data: sellData } = await nobitexApi.post<SendOrderResponseType, AxiosResponse<SendOrderResponseType>, FormData>(NobitexEndPoint.SEND_ORDER,
                                                         createFormData({
-                                                            amount: data.order.amount,
+                                                            amount: data.order.amount * (1-TETTER_TRADE_WAGE_PERCENT),
                                                             clientOrderId: `SEll-${item.symbol}-${(new Date()).getTime()}`,
                                                             dstCurrency: 'usdt',
                                                             srcCurrency: item.symbol.replace('USDT', '').toLowerCase(),
                                                             type: 'sell',
                                                             execution: 'limit',
-                                                            price: ((data.order?.totalPrice / data.order?.amount) * 1.03)
+                                                            price: ((data.order?.totalOrderPrice / data.order?.amount) * 1.03)
                                                         }),
                                                         { headers: { 'Content-Type': 'application/json' } }
                                                     )
@@ -253,13 +255,13 @@ setInterval(async () => {
                                                 } catch (error) {
 
                                                     BaleEndPoint.SEND_MESSAGE(JSON.stringify({
-                                                        amount: data.order.amount,
+                                                        amount: data.order.amount * (1-TETTER_TRADE_WAGE_PERCENT),
                                                         clientOrderId: `SEll-${item.symbol}-${(new Date()).getTime()}`,
                                                         dstCurrency: 'usdt',
                                                         srcCurrency: item.symbol.replace('USDT', '').toLowerCase(),
                                                         type: 'sell',
                                                         execution: 'limit',
-                                                        price: ((data.order?.totalPrice / data.order?.amount) * 1.03) 
+                                                        price: ((data.order?.totalOrderPrice / data.order?.amount) * 1.03) 
                                                     }))
 
                                                     BaleEndPoint.SEND_MESSAGE(`

@@ -37,9 +37,9 @@ export const createTradeMessage = ({ side, date, price, symbol, totalPrice, volu
 تاریخ ایجاد: ${date}
 حجم: ${volume}
 قیمت : ${price}
-قیمت نهایی سفارش : ${totalOrderPrice}
+قیمت نهایی سفارش : ${totalPrice}
 ایدی سفارش:${id}
 
-ارزش کل ( تتر) : ${totalPrice}
+ارزش کل ( تتر) : ${totalOrderPrice}
 
 #${symbol}`
