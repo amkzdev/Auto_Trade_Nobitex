@@ -5,5 +5,9 @@ export const BaleEndPoint = Object.freeze({
     SEND_MESSAGE: async (message: string) => baleAPI.post(BaleEndPoint.SEND_MESSAGE_URL, {
         chat_id: '4579795580',
         text: message
+    }),
+    SEND_MESSAGE_TRADES: async (message: string) => baleAPI.post(BaleEndPoint.SEND_MESSAGE_URL, {
+        chat_id: '5598293765',
+        text: message
     })
 })

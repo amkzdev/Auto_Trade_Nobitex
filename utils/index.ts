@@ -1,4 +1,4 @@
-export const concatWords = (items:string[]) => ''.concat(...items)
+export const concatWords = (items: string[]) => ''.concat(...items)
 
 
 export const createFormData = (dataObj: { [key: string]: any }) => {
@@ -20,3 +20,26 @@ export const createFormData = (dataObj: { [key: string]: any }) => {
 
     return form_data
 }
+
+
+export const createTradeMessage = ({ side, date, price, symbol, totalPrice, volume, id, totalOrderPrice }:
+    {
+        side: 'sell' | 'buy'
+        symbol: string,
+        date: string,
+        volume: number,
+        price: number,
+        totalPrice: number,
+        id: string,
+        totalOrderPrice:number
+
+    }) => `${side == 'buy' ? '🟢 خرید' : '🔴 فروش'} ${symbol}
+تاریخ ایجاد: ${date}
+حجم: ${volume}
+قیمت : ${price}
+قیمت نهایی سفارش : ${totalOrderPrice}
+ایدی سفارش:${id}
+
+ارزش کل ( تتر) : ${totalPrice}
+
+#${symbol}`

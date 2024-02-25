@@ -4,7 +4,7 @@ import { nobitexSymbolsUSDT } from "./variables/nobitex"
 import { NobitexStatusType, OHLCResponseType, OrderBookResponseType, OrderListType, SendNobitexSpotOrderType, SendOrderResponseType } from "./types/nobitex"
 import { KavehEndPoint } from "./api/kaveh"
 import { BaleEndPoint } from "./api/bale"
-import { concatWords, createFormData } from "./utils"
+import { concatWords, createFormData, createTradeMessage } from "./utils"
 import { AxiosResponse } from "axios"
 
 
@@ -177,8 +177,21 @@ setInterval(async () => {
                                                         template: 'verifyCode'
                                                     }
                                                 })
+
+                                                BaleEndPoint.SEND_MESSAGE_TRADES(createTradeMessage({
+                                                    date: data.order.created_at,
+                                                    id: data.order.clientOrderId,
+                                                    price: Number((data.order.totalPrice / data.order.amount).toFixed(4)),
+                                                    side: 'buy',
+                                                    symbol: item.symbol,
+                                                    totalPrice: data?.order?.totalPrice || 0,
+                                                    volume: data.order.amount,
+                                                    totalOrderPrice: data?.order?.totalOrderPrice || 0
+                                                }))
+
                                                 BaleEndPoint.SEND_MESSAGE(`
                                                 سفارش خرید با موفقیت ثبت شد در حال تلاش برای ثبت سفارش فروش.
+                                                وضعیت : ${data.status}
                                                 طرف : ${data.order.type}
                                                 ایدی : ${data.order.id}
                                                 قیمت : ${data.order.price}
@@ -191,25 +204,39 @@ setInterval(async () => {
 
                                                 //Send Sell Order
 
-                                                if (data.status == 'ok') {
-                                                    try {
+                                                // if (data.status == 'ok') {
+                                                try {
 
 
-                                                        const { data: sellData } = await nobitexApi.post<SendOrderResponseType, AxiosResponse<SendOrderResponseType>, FormData>(NobitexEndPoint.SEND_ORDER,
-                                                            createFormData({
-                                                                amount: data.order.amount,
-                                                                clientOrderId: `SEll-${item.symbol}-${(new Date()).getTime()}`,
-                                                                dstCurrency: 'usdt',
-                                                                srcCurrency: item.symbol.replace('USDT', '').toLowerCase(),
-                                                                type: 'sell',
-                                                                execution: 'limit',
-                                                                price: ((5.4 / (data?.order?.amount)) * 1.03)
-                                                            }),
-                                                            { headers: { 'Content-Type': 'application/json' } }
-                                                        )
+                                                    const { data: sellData } = await nobitexApi.post<SendOrderResponseType, AxiosResponse<SendOrderResponseType>, FormData>(NobitexEndPoint.SEND_ORDER,
+                                                        createFormData({
+                                                            amount: data.order.amount,
+                                                            clientOrderId: `SEll-${item.symbol}-${(new Date()).getTime()}`,
+                                                            dstCurrency: 'usdt',
+                                                            srcCurrency: item.symbol.replace('USDT', '').toLowerCase(),
+                                                            type: 'sell',
+                                                            execution: 'limit',
+                                                            price: ((data.order?.totalPrice / data.order?.amount) * 1.03)
+                                                        }),
+                                                        { headers: { 'Content-Type': 'application/json' } }
+                                                    )
 
-                                                        if (sellData.status == 'ok') {
-                                                            BaleEndPoint.SEND_MESSAGE(`
+                                                    if (sellData.status == 'ok') {
+
+
+                                                        BaleEndPoint.SEND_MESSAGE_TRADES(createTradeMessage({
+                                                            date: sellData.order.created_at,
+                                                            id: sellData.order.clientOrderId,
+                                                            price: Number((sellData.order.totalPrice / sellData.order.amount).toFixed(4)),
+                                                            side: 'sell',
+                                                            symbol: item.symbol,
+                                                            totalPrice: sellData?.order?.totalPrice || 0,
+                                                            volume: sellData.order.amount,
+                                                            totalOrderPrice: sellData?.order?.totalOrderPrice || 0
+                                                        }))
+
+
+                                                        BaleEndPoint.SEND_MESSAGE(`
                                                             سفارش فروش با موفقیت ثبت شد.
                                                             طرف : ${sellData.order.type}
                                                             ایدی : ${sellData.order.id}
@@ -221,21 +248,21 @@ setInterval(async () => {
                                                             ${(new Date()).toLocaleString()}
             
                                                             `)
-                                                        }
+                                                    }
 
-                                                    } catch (error) {
+                                                } catch (error) {
 
-                                                        BaleEndPoint.SEND_MESSAGE(JSON.stringify({
-                                                            amount: data.order.amount,
-                                                            clientOrderId: `SEll-${item.symbol}-${(new Date()).getTime()}`,
-                                                            dstCurrency: 'usdt',
-                                                            srcCurrency: item.symbol.replace('USDT', '').toLowerCase(),
-                                                            type: 'sell',
-                                                            execution: 'limit',
-                                                            price: ((5.4 / (data?.order?.amount)) * 1.03)
-                                                        }))
+                                                    BaleEndPoint.SEND_MESSAGE(JSON.stringify({
+                                                        amount: data.order.amount,
+                                                        clientOrderId: `SEll-${item.symbol}-${(new Date()).getTime()}`,
+                                                        dstCurrency: 'usdt',
+                                                        srcCurrency: item.symbol.replace('USDT', '').toLowerCase(),
+                                                        type: 'sell',
+                                                        execution: 'limit',
+                                                        price: ((data.order?.totalPrice / data.order?.amount) * 1.03) 
+                                                    }))
 
-                                                        BaleEndPoint.SEND_MESSAGE(`
+                                                    BaleEndPoint.SEND_MESSAGE(`
                                                         خطا در ثبت سفارش فروش
                                                         
                                                         ${(new Date()).toLocaleString()}
@@ -246,8 +273,8 @@ setInterval(async () => {
 
                                                         ${error?.toString()}
                                                         `)
-                                                    }
                                                 }
+                                                // }
 
 
                                             }
