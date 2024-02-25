@@ -148,7 +148,7 @@ setInterval(async () => {
 
                                     const { data } = await nobitexApi.post<{ balance: number, status: NobitexStatusType }>(NobitexEndPoint.BALANCE, { currency: 'usdt' })
 
-                                    if (Number(data?.balance ?? 0) > 5.1 && orders?.findIndex(o => o?.clientOrderId?.includes(item.symbol)) == -1) {
+                                    if (Number(data?.balance ?? 0) > 5.3 && orders?.findIndex(o => o?.clientOrderId?.includes(item.symbol)) == -1) {
 
                                         try {
                                             //Send Buy Order
@@ -300,7 +300,7 @@ setInterval(async () => {
 
                                                 ${(new Date()).toLocaleString()}
 
-                                                ${error?.response?.toString()}
+                                                ${error?.response?.data?.toString()}
 
                                                 ${error?.toString()}
                                                 `)
@@ -309,8 +309,8 @@ setInterval(async () => {
                                     }
 
                                     else {
-                                        if (Number(data?.balance ?? 0) <= 5.1)
-                                            BaleEndPoint.SEND_MESSAGE('موجودی تتری حساب کمتر از 5.1 دلار است.')
+                                        if (Number(data?.balance ?? 0) <= 5.4)
+                                            BaleEndPoint.SEND_MESSAGE('موجودی تتری حساب کمتر از 5.4 دلار است.')
                                         else if (orders.findIndex(o => o.clientOrderId.includes(item.symbol)) != -1)
                                             BaleEndPoint.SEND_MESSAGE(`برای نماد ${item.symbol} قبلا خرید انجام شده است.`)
                                         else
