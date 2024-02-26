@@ -180,7 +180,7 @@ setInterval(async () => {
                                                     }
                                                 })
 
-                                                BaleEndPoint.SEND_MESSAGE_TRADES(createTradeMessage({
+                                                await BaleEndPoint.SEND_MESSAGE_TRADES(createTradeMessage({
                                                     date: data.order.created_at,
                                                     id: data.order.clientOrderId,
                                                     price: Number((data.order.totalOrderPrice / data.order.amount).toFixed(4)),
@@ -191,7 +191,7 @@ setInterval(async () => {
                                                     totalOrderPrice: data?.order?.totalOrderPrice || 0
                                                 }))
 
-                                                BaleEndPoint.SEND_MESSAGE(`
+                                                await BaleEndPoint.SEND_MESSAGE(`
                                                 سفارش خرید با موفقیت ثبت شد در حال تلاش برای ثبت سفارش فروش.
                                                 وضعیت : ${data.status}
                                                 طرف : ${data.order.type}
@@ -209,11 +209,32 @@ setInterval(async () => {
                                                 // if (data.status == 'ok') {
                                                 try {
 
+                                                    console.log('Ready For SELL')
 
-                                                    const { data: sellData } = await nobitexApi.post<SendOrderResponseType, AxiosResponse<SendOrderResponseType>, FormData>(NobitexEndPoint.SEND_ORDER,
+                                                    console.log({
+                                                        amount: data.order.amount * (1 - TETTER_TRADE_WAGE_PERCENT),
+                                                        clientOrderId: `SELL-${item.symbol}-${(new Date()).getTime()}`,
+                                                        dstCurrency: 'usdt',
+                                                        srcCurrency: item.symbol.replace('USDT', '').toLowerCase(),
+                                                        type: 'sell',
+                                                        execution: 'limit',
+                                                        price: ((data.order?.totalOrderPrice / data.order?.amount) * 1.03)
+                                                    })
+                                                    
+                                                    await BaleEndPoint.SEND_MESSAGE(JSON.stringify({
+                                                        amount: data.order.amount * (1 - TETTER_TRADE_WAGE_PERCENT),
+                                                        clientOrderId: `PRE-SELL-${item.symbol}-${(new Date()).getTime()}`,
+                                                        dstCurrency: 'usdt',
+                                                        srcCurrency: item.symbol.replace('USDT', '').toLowerCase(),
+                                                        type: 'sell',
+                                                        execution: 'limit',
+                                                        price: ((data.order?.totalOrderPrice / data.order?.amount) * 1.03)
+                                                    }))
+
+                                                    var { data: sellData } = await nobitexApi.post<SendOrderResponseType, AxiosResponse<SendOrderResponseType>, FormData>(NobitexEndPoint.SEND_ORDER,
                                                         createFormData({
-                                                            amount: data.order.amount * (1-TETTER_TRADE_WAGE_PERCENT),
-                                                            clientOrderId: `SEll-${item.symbol}-${(new Date()).getTime()}`,
+                                                            amount: data.order.amount * (1 - TETTER_TRADE_WAGE_PERCENT),
+                                                            clientOrderId: `SELL-${item.symbol}-${(new Date()).getTime()}`,
                                                             dstCurrency: 'usdt',
                                                             srcCurrency: item.symbol.replace('USDT', '').toLowerCase(),
                                                             type: 'sell',
@@ -223,19 +244,22 @@ setInterval(async () => {
                                                         { headers: { 'Content-Type': 'application/json' } }
                                                     )
 
+                                                    await BaleEndPoint.SEND_MESSAGE(JSON.stringify(sellData))
+                                                    
+                                                    await BaleEndPoint.SEND_MESSAGE_TRADES(createTradeMessage({
+                                                        date: sellData?.order?.created_at,
+                                                        id: sellData.order.clientOrderId,
+                                                        price: Number((sellData.order.totalPrice / sellData.order.amount).toFixed(4)),
+                                                        side: 'sell',
+                                                        symbol: item.symbol,
+                                                        totalPrice: sellData?.order?.totalPrice || 0,
+                                                        volume: sellData.order.amount,
+                                                        totalOrderPrice: sellData?.order?.totalOrderPrice || 0
+                                                    }))
+
                                                     if (sellData.status == 'ok') {
 
 
-                                                        BaleEndPoint.SEND_MESSAGE_TRADES(createTradeMessage({
-                                                            date: sellData.order.created_at,
-                                                            id: sellData.order.clientOrderId,
-                                                            price: Number((sellData.order.totalPrice / sellData.order.amount).toFixed(4)),
-                                                            side: 'sell',
-                                                            symbol: item.symbol,
-                                                            totalPrice: sellData?.order?.totalPrice || 0,
-                                                            volume: sellData.order.amount,
-                                                            totalOrderPrice: sellData?.order?.totalOrderPrice || 0
-                                                        }))
 
 
                                                         BaleEndPoint.SEND_MESSAGE(`
@@ -255,13 +279,13 @@ setInterval(async () => {
                                                 } catch (error) {
 
                                                     BaleEndPoint.SEND_MESSAGE(JSON.stringify({
-                                                        amount: data.order.amount * (1-TETTER_TRADE_WAGE_PERCENT),
-                                                        clientOrderId: `SEll-${item.symbol}-${(new Date()).getTime()}`,
+                                                        amount: data.order.amount * (1 - TETTER_TRADE_WAGE_PERCENT),
+                                                        clientOrderId: `SELL-${item.symbol}-${(new Date()).getTime()}`,
                                                         dstCurrency: 'usdt',
                                                         srcCurrency: item.symbol.replace('USDT', '').toLowerCase(),
                                                         type: 'sell',
                                                         execution: 'limit',
-                                                        price: ((data.order?.totalOrderPrice / data.order?.amount) * 1.03) 
+                                                        price: ((data.order?.totalOrderPrice / data.order?.amount) * 1.03)
                                                     }))
 
                                                     BaleEndPoint.SEND_MESSAGE(`
