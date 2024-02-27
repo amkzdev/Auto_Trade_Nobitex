@@ -54,7 +54,8 @@ export interface SendOrderResponseType {
         fee: number,
         created_at: string
         averagePrice: number,
-        clientOrderId: string,
+        clientOrderId?: string,
+        client?:string
       }
 }
 

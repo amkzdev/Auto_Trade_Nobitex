@@ -234,7 +234,7 @@ setInterval(async () => {
                                                     var { data: sellData } = await nobitexApi.post<SendOrderResponseType, AxiosResponse<SendOrderResponseType>, FormData>(NobitexEndPoint.SEND_ORDER,
                                                         createFormData({
                                                             amount: data.order.amount * (1 - TETTER_TRADE_WAGE_PERCENT),
-                                                            client: `SELL-${item.symbol}-${(new Date()).getTime()}`,
+                                                            clientOrderId: `SELL-${item.symbol}-${(new Date()).getTime()}`,
                                                             dstCurrency: 'usdt',
                                                             srcCurrency: item.symbol.replace('USDT', '').toLowerCase(),
                                                             type: 'sell',
@@ -244,12 +244,12 @@ setInterval(async () => {
                                                         { headers: { 'Content-Type': 'application/json' } }
                                                     )
 
-                                                    await BaleEndPoint.SEND_MESSAGE(JSON.stringify(sellData))
+                                                    await BaleEndPoint.SEND_MESSAGE(JSON.stringify({...sellData }))
 
                                                     await BaleEndPoint.SEND_MESSAGE_TRADES(createTradeMessage({
                                                         date: sellData?.order?.created_at,
                                                         id: sellData?.order?.clientOrderId ?? sellData?.order?.client,
-                                                        price: Number((sellData.order.totalPrice / sellData.order.amount).toFixed(4)),
+                                                        price: Number(sellData?.order?.price ??0) ,
                                                         side: 'sell',
                                                         symbol: item.symbol,
                                                         totalPrice: sellData?.order?.totalPrice || 0,
