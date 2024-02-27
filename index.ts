@@ -211,6 +211,8 @@ setInterval(async () => {
 
                                                     console.log('Ready For SELL')
 
+                                                    await (new Promise(res => setTimeout(res, 2000)))
+
                                                     console.log({
                                                         amount: data.order.amount * (1 - TETTER_TRADE_WAGE_PERCENT),
                                                         clientOrderId: `SELL-${item.symbol}-${(new Date()).getTime()}`,
@@ -220,7 +222,7 @@ setInterval(async () => {
                                                         execution: 'limit',
                                                         price: ((data.order?.totalOrderPrice / data.order?.amount) * 1.03)
                                                     })
-                                                    
+
                                                     await BaleEndPoint.SEND_MESSAGE(JSON.stringify({
                                                         amount: data.order.amount * (1 - TETTER_TRADE_WAGE_PERCENT),
                                                         clientOrderId: `PRE-SELL-${item.symbol}-${(new Date()).getTime()}`,
@@ -244,12 +246,12 @@ setInterval(async () => {
                                                         { headers: { 'Content-Type': 'application/json' } }
                                                     )
 
-                                                    await BaleEndPoint.SEND_MESSAGE(JSON.stringify({...sellData }))
+                                                    await BaleEndPoint.SEND_MESSAGE(JSON.stringify({ ...sellData }))
 
                                                     await BaleEndPoint.SEND_MESSAGE_TRADES(createTradeMessage({
                                                         date: sellData?.order?.created_at,
                                                         id: sellData?.order?.clientOrderId ?? sellData?.order?.client,
-                                                        price: Number(sellData?.order?.price ??0) ,
+                                                        price: Number(sellData?.order?.price ?? 0),
                                                         side: 'sell',
                                                         symbol: item.symbol,
                                                         totalPrice: sellData?.order?.totalPrice || 0,
