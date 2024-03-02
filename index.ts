@@ -189,7 +189,29 @@ setInterval(async () => {
                                                     totalPrice: data?.order?.totalPrice || 0,
                                                     volume: data.order.amount,
                                                     totalOrderPrice: data?.order?.totalOrderPrice || 0
-                                                }))
+                                                }).concat(`
+                                                ------------------دلیل معامله-----------------`).concat(concatWords([
+                                                    item.symbol,
+                                                    ` پامپ شده است و شرایط انجام معامله را دارد.
+                                                        حجم معامله بیش از سه برابر میانگین 30 دقیقه اخیر`,
+                                                    ((item.data.c[item.data.c.length - 1] / item.data.o[item.data.c.length - 1]) > 1.01) ?
+                                                        ` قیمت پایانی و آغازین بیش از 1 درصد اختلاف دارند
+                                                        ${(((item.data.c[item.data.c.length - 1] / item.data.o[item.data.c.length - 5]) - 1) * 100).toFixed(2)}%`
+                                                        :
+                                                        ` قیمت پایانی کندل فعلی و کندل پیشین پیش از 2 درصد اختلاف دارند.
+                                                        ${(((item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 2]) - 1) * 100).toFixed(2)}%
+                                                        `,
+                                                    ` #معامله
+                                                        قیمت پایانی فعلی : ${item.data.c[item.data.c.length - 1]}
+                                                        قیمت آغازین  : ${item.data.o[item.data.c.length - 5]}
+                                                         تاریخ کندل  : ${(new Date(item.data.t[item.data.c.length - 5] * 1000)).toLocaleTimeString()}
+                                                         تاریخ  : ${(new Date()).toLocaleDateString()}
+                                                         ساعت  : ${(new Date()).toLocaleTimeString()}
+                                                        `
+                                                ]))
+
+
+                                                )
 
                                                 await BaleEndPoint.SEND_MESSAGE(`
                                                 سفارش خرید با موفقیت ثبت شد در حال تلاش برای ثبت سفارش فروش.
