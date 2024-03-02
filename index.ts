@@ -120,7 +120,7 @@ setInterval(async () => {
                             && (item.data.v[item.data.c.length - 1] / averageVolume) >= 3) {
 
 
-                            BaleEndPoint.SEND_MESSAGE(
+                            BaleEndPoint.SEND_MESSAGE_IN_SIGNAL(
                                 concatWords([
                                     item.symbol,
                                     ` پامپ شده است و شرایط انجام معامله را دارد.
