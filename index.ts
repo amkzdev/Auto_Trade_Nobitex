@@ -110,14 +110,17 @@ setInterval(async () => {
 
 
                         const averageVolume = item.data.v.slice(-6).reduce((pv, cv) => pv += cv, 0) / 6
+                        const averageClosePrice = item.data.c.slice(-6).reduce((pv, cv) => pv += cv, 0) / 6
 
                         if (
                             (
-                                ((item.data.c[item.data.c.length - 1] / item.data.o[item.data.c.length - 1]) > 1.01)
+                                ((item.data.c[item.data.c.length - 1] / item.data.o[item.data.c.length - 1]) > 1.015)
                                 ||
                                 ((item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 2]) > 1.02)
                             )
-                            && (item.data.v[item.data.c.length - 1] / averageVolume) >= 3) {
+                            && (item.data.v[item.data.c.length - 1] / averageVolume) >= 3 &&
+                            ((averageVolume * averageClosePrice) >= 1000)
+                        ) {
 
 
                             BaleEndPoint.SEND_MESSAGE_IN_SIGNAL(
@@ -125,11 +128,12 @@ setInterval(async () => {
                                     item.symbol,
                                     ` پامپ شده است و شرایط انجام معامله را دارد.
                                         حجم معامله بیش از سه برابر میانگین 30 دقیقه اخیر`,
+                                    `ارزش معاملات 30 دقیقه اخیر ${(averageVolume * averageClosePrice).toLocaleString()}USDT می باشد`,
                                     ((item.data.c[item.data.c.length - 1] / item.data.o[item.data.c.length - 1]) > 1.01) ?
-                                        ` قیمت پایانی و آغازین بیش از 1 درصد اختلاف دارند
+                                        ` قیمت پایانی و آغازین بیش از 2 درصد اختلاف دارند
                                         ${(((item.data.c[item.data.c.length - 1] / item.data.o[item.data.c.length - 5]) - 1) * 100).toFixed(2)}%`
                                         :
-                                        ` قیمت پایانی کندل فعلی و کندل پیشین پیش از 2 درصد اختلاف دارند.
+                                        ` قیمت پایانی کندل فعلی و کندل پیشین پیش از 1.5 درصد اختلاف دارند.
                                         ${(((item.data.c[item.data.c.length - 1] / item.data.c[item.data.c.length - 2]) - 1) * 100).toFixed(2)}%
                                         `,
                                     ` #معامله
@@ -194,6 +198,7 @@ setInterval(async () => {
                                                     item.symbol,
                                                     ` پامپ شده است و شرایط انجام معامله را دارد.
                                                         حجم معامله بیش از سه برابر میانگین 30 دقیقه اخیر`,
+                                                    `ارزش معاملات 30 دقیقه اخیر ${(averageVolume * averageClosePrice).toLocaleString()}USDT می باشد`,
                                                     ((item.data.c[item.data.c.length - 1] / item.data.o[item.data.c.length - 1]) > 1.01) ?
                                                         ` قیمت پایانی و آغازین بیش از 1 درصد اختلاف دارند
                                                         ${(((item.data.c[item.data.c.length - 1] / item.data.o[item.data.c.length - 5]) - 1) * 100).toFixed(2)}%`
@@ -233,7 +238,7 @@ setInterval(async () => {
 
                                                     console.log('Ready For SELL')
 
-                                                    await (new Promise(res => setTimeout(res, 2000)))
+                                                    await (new Promise(res => setTimeout(res, 3000)))
 
                                                     console.log({
                                                         amount: data.order.amount * (1 - TETTER_TRADE_WAGE_PERCENT),
@@ -264,9 +269,9 @@ setInterval(async () => {
                                                             type: 'sell',
                                                             execution: 'limit',
                                                             price: ((data.order?.totalOrderPrice / data.order?.amount) * 1.03),
-                                                            stopPrice:((data.order?.totalOrderPrice / data.order?.amount) * 0.985),
-                                                            stopLimitPrice:((data.order?.totalOrderPrice / data.order?.amount) * 0.985),
-                                                            mode:'oco'
+                                                            stopPrice: ((data.order?.totalOrderPrice / data.order?.amount) * 0.985),
+                                                            stopLimitPrice: ((data.order?.totalOrderPrice / data.order?.amount) * 0.985),
+                                                            mode: 'oco'
                                                         }),
                                                         { headers: { 'Content-Type': 'application/json' } }
                                                     )
@@ -282,8 +287,8 @@ setInterval(async () => {
                                                         totalPrice: sellData?.order?.totalPrice || 0,
                                                         volume: sellData.order.amount,
                                                         totalOrderPrice: sellData?.order?.totalOrderPrice || 0,
-                                                        stopPrice:((data.order?.totalOrderPrice / data.order?.amount) * 0.985),
-                                                        stopLimitPrice:((data.order?.totalOrderPrice / data.order?.amount) * 0.985)
+                                                        stopPrice: ((data.order?.totalOrderPrice / data.order?.amount) * 0.985),
+                                                        stopLimitPrice: ((data.order?.totalOrderPrice / data.order?.amount) * 0.985)
                                                     }))
 
                                                     if (sellData.status == 'ok') {
