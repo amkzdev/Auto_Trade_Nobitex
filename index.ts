@@ -241,7 +241,10 @@ setInterval(async () => {
                                                             srcCurrency: item.symbol.replace('USDT', '').toLowerCase(),
                                                             type: 'sell',
                                                             execution: 'limit',
-                                                            price: ((data.order?.totalOrderPrice / data.order?.amount) * 1.03)
+                                                            price: ((data.order?.totalOrderPrice / data.order?.amount) * 1.03),
+                                                            stopPrice:((data.order?.totalOrderPrice / data.order?.amount) * 0.985),
+                                                            stopLimitPrice:((data.order?.totalOrderPrice / data.order?.amount) * 0.985),
+                                                            mode:'oco'
                                                         }),
                                                         { headers: { 'Content-Type': 'application/json' } }
                                                     )
@@ -256,7 +259,9 @@ setInterval(async () => {
                                                         symbol: item.symbol,
                                                         totalPrice: sellData?.order?.totalPrice || 0,
                                                         volume: sellData.order.amount,
-                                                        totalOrderPrice: sellData?.order?.totalOrderPrice || 0
+                                                        totalOrderPrice: sellData?.order?.totalOrderPrice || 0,
+                                                        stopPrice:((data.order?.totalOrderPrice / data.order?.amount) * 0.985),
+                                                        stopLimitPrice:((data.order?.totalOrderPrice / data.order?.amount) * 0.985)
                                                     }))
 
                                                     if (sellData.status == 'ok') {

@@ -22,7 +22,7 @@ export const createFormData = (dataObj: { [key: string]: any }) => {
 }
 
 
-export const createTradeMessage = ({ side, date, price, symbol, totalPrice, volume, id, totalOrderPrice }:
+export const createTradeMessage = ({ side, date, price, symbol, totalPrice, volume, id, totalOrderPrice , stopLimitPrice  , stopPrice }:
     {
         side: 'sell' | 'buy'
         symbol: string,
@@ -31,7 +31,9 @@ export const createTradeMessage = ({ side, date, price, symbol, totalPrice, volu
         price: number,
         totalPrice: number,
         id: string,
-        totalOrderPrice:number
+        totalOrderPrice:number,
+        stopPrice?: number,
+        stopLimitPrice?:number
 
     }) => `${side == 'buy' ? '🟢 خرید' : '🔴 فروش'} ${symbol}
 تاریخ ایجاد: ${date}
@@ -39,6 +41,8 @@ export const createTradeMessage = ({ side, date, price, symbol, totalPrice, volu
 قیمت : ${price}
 قیمت نهایی سفارش : ${totalPrice}
 ایدی سفارش:${id}
+stopLimitPrice : ${stopLimitPrice}
+stopPrice : ${stopPrice}
 
 ارزش کل ( تتر) : ${totalOrderPrice}
 
