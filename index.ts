@@ -10,19 +10,6 @@ import { AxiosResponse } from "axios"
 
 
 
-// nobitexApi.post<FormData, AxiosResponse<SendOrderResponseType>, FormData>(NobitexEndPoint.SEND_ORDER,
-//     createFormData({
-//         amount: 0.2420,
-//         clientOrderId: `BUY-btc-${(new Date()).getTime()}`,
-//         dstCurrency: 'usdt',
-//         srcCurrency: 'btc',
-//         type: 'buy',
-//         execution: 'market',
-//     }), {
-//     headers: { 'Content-Type': 'application/json' }
-// }).then(e => console.log(e, e.data))
-//     .catch(e => console.log(e))
-
 var isTokenMessageSend = false
 
 setInterval(async () => {
